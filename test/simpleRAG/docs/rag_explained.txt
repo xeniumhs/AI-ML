@@ -1,0 +1,26 @@
+Retrieval-Augmented Generation (RAG)
+
+RAG stands for Retrieval-Augmented Generation. It is a technique that combines information
+retrieval with text generation to produce more accurate and up-to-date responses.
+
+How RAG Works:
+1. Indexing: Documents are split into chunks and converted into vector embeddings using an
+   embedding model. These embeddings are stored in a vector database.
+
+2. Retrieval: When a user asks a question, the question is also converted into an embedding.
+   The system then searches the vector database for the most similar document chunks.
+
+3. Generation: The retrieved chunks are passed as context to a Large Language Model (LLM),
+   which generates a response based on both its training data and the retrieved context.
+
+Benefits of RAG:
+- Reduces hallucinations by grounding responses in real documents
+- Allows LLMs to access up-to-date information beyond their training cutoff
+- Makes AI systems more transparent and verifiable
+- Cost-effective compared to fine-tuning models
+
+Vector Databases store embeddings and allow for fast similarity search using metrics like
+cosine similarity or dot product. Popular vector databases include ChromaDB, Pinecone, and Weaviate.
+
+Embeddings are numerical representations of text that capture semantic meaning. Similar texts
+will have embeddings that are close together in vector space.

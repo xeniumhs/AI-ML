@@ -1,0 +1,64 @@
+MERN Developer Interview Questions and Answers
+
+1.  What is the MERN stack? Answer: MongoDB, Express.js, React, and
+    Node.js are JavaScript technologies used to build full-stack web
+    applications.
+
+2.  What is React? Answer: A JavaScript library for building reusable UI
+    components using a virtual DOM.
+
+3.  What is the Virtual DOM? Answer: A lightweight copy of the real DOM
+    that React compares to efficiently update only changed elements.
+
+4.  What is Express.js? Answer: A minimal Node.js framework for creating
+    APIs, middleware, and web servers.
+
+5.  What is Node.js? Answer: A JavaScript runtime built on Chrome’s V8
+    engine for server-side development.
+
+6.  What is MongoDB? Answer: A NoSQL document database that stores data
+    in BSON documents.
+
+7.  What is Mongoose? Answer: An ODM library that provides schemas,
+    validation, and querying for MongoDB.
+
+8.  Explain JWT authentication. Answer: After login, the server creates
+    a signed JSON Web Token that the client sends with future requests
+    for authentication.
+
+9.  What are middleware functions in Express? Answer: Functions that
+    execute during the request-response cycle for logging,
+    authentication, validation, etc.
+
+10. Difference between SQL and MongoDB? Answer: SQL uses tables and
+    fixed schemas; MongoDB uses flexible JSON-like documents.
+
+11. What are React Hooks? Answer: Functions like useState and useEffect
+    that allow state and lifecycle features in functional components.
+
+12. Difference between useState and useEffect? Answer: useState stores
+    state; useEffect performs side effects like API calls.
+
+13. What is Redux? Answer: A predictable state management library for
+    sharing application state.
+
+14. What is REST API? Answer: An API following REST principles using
+    HTTP methods like GET, POST, PUT, and DELETE.
+
+15. How do you improve MERN performance? Answer: Pagination, indexing,
+    caching, React.memo, lazy loading, code splitting, and optimized
+    database queries.
+
+16. Explain CORS. Answer: A browser security feature that controls
+    cross-origin requests.
+
+17. What is async/await? Answer: Syntax for writing asynchronous
+    JavaScript in a readable way.
+
+18. What is bcrypt? Answer: A library for securely hashing passwords.
+
+19. What is dotenv? Answer: A package for loading environment variables
+    from a .env file.
+
+20. What projects have you built? Answer: Discuss your own MERN
+    projects, architecture, authentication, deployment, and challenges.

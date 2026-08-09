@@ -1,0 +1,79 @@
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+venv/
+.venv/
+llm/
+.llm/
+env/
+ENV/
+
+# =========================
+# Environment Variables
+# =========================
+.env
+.env.*
+!.env.example
+
+# =========================
+# RAG / Vector Databases
+# =========================
+chroma_db/
+*.sqlite
+*.sqlite3
+
+# =========================
+# Local LLM / Model Files
+# =========================
+models/
+*.gguf
+*.bin
+*.safetensors
+*.pt
+*.pth
+
+# =========================
+# Documents / User Data
+# =========================
+data/
+documents/
+uploads/
+*.pdf
+*.docx
+
+# =========================
+# Jupyter
+# =========================
+.ipynb_checkpoints/
+
+# =========================
+# Logs
+# =========================
+*.log
+logs/
+
+# =========================
+# IDE / Editor
+# =========================
+.vscode/
+.idea/
+
+# =========================
+# OS Files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Python Packaging
+# =========================
+*.egg-info/
+dist/
+build/
+.pytest_cache/

@@ -1,0 +1,19 @@
+Artificial Intelligence Basics
+
+Artificial Intelligence (AI) is the simulation of human intelligence processes by computer systems.
+These processes include learning, reasoning, and self-correction.
+
+Machine Learning is a subset of AI that enables systems to learn and improve from experience
+without being explicitly programmed. It focuses on developing computer programs that can access
+data and use it to learn for themselves.
+
+Deep Learning is a subset of machine learning that uses neural networks with many layers.
+These neural networks attempt to simulate the behavior of the human brain to learn from large
+amounts of data.
+
+Natural Language Processing (NLP) is a branch of AI that helps computers understand, interpret,
+and manipulate human language. NLP draws from many disciplines including computer science and
+computational linguistics.
+
+Computer Vision is a field of AI that trains computers to interpret and understand the visual world.
+Using digital images from cameras and videos, machines can accurately identify and classify objects.
