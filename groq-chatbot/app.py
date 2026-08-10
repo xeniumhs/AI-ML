@@ -53,7 +53,7 @@ if prompt:
             model="openai/gpt-oss-120b",
             messages=st.session_state.messages,
             temperature=0.7,
-            max_tokens=1024
+            max_tokens=2048
         )
 
         answer = response.choices[0].message.content
