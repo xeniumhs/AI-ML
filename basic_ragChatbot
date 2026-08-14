@@ -1,0 +1,383 @@
+import ollama
+
+
+# ============================================================
+# 1. VECTOR SEARCH
+# ============================================================
+
+def search_questions(query, limit=5):
+
+    print("\n🔍 Searching PostgreSQL + pgvector...")
+
+    # Create embedding for the query
+    query_embedding = model.encode(query).tolist()
+
+    print(f"   ✓ Nomic embedding created ({len(query_embedding)} dimensions)")
+
+    # Vector similarity search
+    cur.execute("""
+        SELECT
+            id,
+            question,
+            category,
+            role,
+            experience,
+            difficulty,
+            ideal_answer,
+            keywords,
+            1 - (embedding <=> %s::vector) AS similarity
+        FROM interview_questions
+        WHERE embedding IS NOT NULL
+        ORDER BY embedding <=> %s::vector
+        LIMIT %s;
+    """, (
+        str(query_embedding),
+        str(query_embedding),
+        limit
+    ))
+
+    results = cur.fetchall()
+
+    print(f"   ✓ Retrieved {len(results)} relevant questions")
+
+    return results
+
+
+# ============================================================
+# 2. CREATE CONTEXT FROM DATABASE
+# ============================================================
+
+def build_context(results):
+
+    context = "\n\n".join([
+        f"""
+Question: {row[1]}
+Category: {row[2]}
+Role: {row[3]}
+Experience: {row[4]}
+Difficulty: {row[5]}
+Ideal Answer: {row[6]}
+Keywords: {row[7]}
+Similarity: {row[8]:.3f}
+"""
+        for row in results
+    ])
+
+    return context
+
+
+# ============================================================
+# 3. GENERATE FIRST INTERVIEW QUESTION
+# ============================================================
+
+def generate_first_question(role):
+
+    results = search_questions(role)
+
+    context = build_context(results)
+
+    prompt = f"""
+You are a professional AI interviewer.
+
+The candidate is applying for:
+
+ROLE:
+{role}
+
+Here is interview knowledge retrieved from the database:
+
+{context}
+
+Your task:
+
+1. Act as the interviewer.
+2. Ask ONE interview question.
+3. Make it relevant to the candidate's role.
+4. Start with a reasonable difficulty.
+5. Do not give the answer.
+6. Do not ask multiple questions.
+
+Return ONLY the interview question.
+"""
+
+    response = ollama.chat(
+        model="llama3.2",
+        messages=[
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ]
+    )
+
+    return response["message"]["content"]
+
+
+# ============================================================
+# 4. EVALUATE CANDIDATE ANSWER
+# ============================================================
+
+def evaluate_answer(role, question, answer):
+
+    print("\n🧠 Llama 3.2 is evaluating your answer...")
+
+    # Search database using the question
+    results = search_questions(question, limit=3)
+
+    context = build_context(results)
+
+    prompt = f"""
+You are an expert technical interviewer.
+
+Candidate role:
+{role}
+
+Interview question:
+{question}
+
+Candidate's answer:
+{answer}
+
+Relevant interview knowledge:
+{context}
+
+Evaluate the candidate's answer.
+
+Return the evaluation in this exact structure:
+
+SCORE: X/10
+
+STRENGTHS:
+- ...
+- ...
+
+WEAKNESSES:
+- ...
+- ...
+
+FEEDBACK:
+...
+
+NEXT_DIFFICULTY:
+easy / medium / hard
+
+Do not invent information.
+"""
+
+    response = ollama.chat(
+        model="llama3.2",
+        messages=[
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ]
+    )
+
+    return response["message"]["content"]
+
+
+# ============================================================
+# 5. GENERATE NEXT QUESTION
+# ============================================================
+
+def generate_next_question(
+    role,
+    previous_question,
+    previous_answer,
+    evaluation,
+    asked_questions
+):
+
+    print("\n🔍 Searching for the next relevant question...")
+
+    # Search using the candidate's previous answer
+    search_query = f"""
+    Role: {role}
+
+    Previous question:
+    {previous_question}
+
+    Candidate answer:
+    {previous_answer}
+
+    Evaluation:
+    {evaluation}
+    """
+
+    results = search_questions(search_query, limit=5)
+
+    context = build_context(results)
+
+    already_asked = "\n".join(
+        f"- {q}" for q in asked_questions
+    )
+
+    prompt = f"""
+You are a professional adaptive AI interviewer.
+
+Candidate role:
+{role}
+
+Previous question:
+{previous_question}
+
+Candidate's previous answer:
+{previous_answer}
+
+Evaluation:
+{evaluation}
+
+Relevant interview knowledge:
+{context}
+
+Questions already asked:
+{already_asked}
+
+Your task:
+
+Ask the NEXT interview question.
+
+Rules:
+
+1. Ask exactly ONE question.
+2. Do not repeat a previous question.
+3. Make the question relevant to the candidate's role.
+4. Use the previous answer to decide what to ask next.
+5. If the candidate showed weakness, ask a useful follow-up.
+6. If the candidate answered very well, increase the difficulty.
+7. If appropriate, move to another relevant topic.
+8. Do not give the answer.
+9. Return ONLY the interview question.
+
+"""
+
+    response = ollama.chat(
+        model="llama3.2",
+        messages=[
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ]
+    )
+
+    return response["message"]["content"]
+
+
+# ============================================================
+# 6. START INTERVIEW
+# ============================================================
+
+def start_interview():
+
+    print("\n")
+    print("=" * 65)
+    print("                  AI INTERVIEWER")
+    print("=" * 65)
+
+    print("\nAI: Welcome! I'm your AI interviewer.")
+
+    # --------------------------------------------------------
+    # Ask role
+    # --------------------------------------------------------
+
+    role = input(
+        "\nAI: What position are you applying for?\nYou: "
+    )
+
+    if role.lower() in ["exit", "quit"]:
+        print("\nInterview ended.")
+        return
+
+    print("\nAI: Great. I'll prepare the interview based on that role.")
+
+    # --------------------------------------------------------
+    # First question
+    # --------------------------------------------------------
+
+    question = generate_first_question(role)
+
+    asked_questions = []
+
+    asked_questions.append(question)
+
+    print("\n")
+    print("-" * 65)
+    print("AI INTERVIEWER")
+    print("-" * 65)
+
+    print(question)
+
+    # --------------------------------------------------------
+    # Interview loop
+    # --------------------------------------------------------
+
+    question_number = 1
+
+    while True:
+
+        print("\n" + "-" * 65)
+
+        answer = input("You: ")
+
+        # Allow user to exit
+        if answer.lower() in ["exit", "quit"]:
+
+            print("\nAI: Thank you for participating.")
+            print("Interview ended.")
+
+            break
+
+        # Don't accept empty answers
+        if not answer.strip():
+
+            print("\nAI: Please provide an answer.")
+            continue
+
+        # ----------------------------------------------------
+        # Evaluate answer
+        # ----------------------------------------------------
+
+        evaluation = evaluate_answer(
+            role,
+            question,
+            answer
+        )
+
+        print("\n")
+        print("=" * 65)
+        print("ANSWER EVALUATION")
+        print("=" * 65)
+
+        print(evaluation)
+
+        # ----------------------------------------------------
+        # Generate next question
+        # ----------------------------------------------------
+
+        question = generate_next_question(
+            role,
+            question,
+            answer,
+            evaluation,
+            asked_questions
+        )
+
+        asked_questions.append(question)
+
+        question_number += 1
+
+        print("\n")
+        print("=" * 65)
+        print(f"QUESTION {question_number}")
+        print("=" * 65)
+
+        print(question)
+
+
+# ============================================================
+# RUN INTERVIEW
+# ============================================================
+
+start_interview()
